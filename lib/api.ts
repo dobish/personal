@@ -155,9 +155,9 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
         ...PostFields
         content
         ${
-          // Only some of the fields of a revision are considered as there are some inconsistencies
-          isRevision
-            ? `
+    // Only some of the fields of a revision are considered as there are some inconsistencies
+    isRevision
+      ? `
         revisions(first: 1, where: { orderby: { field: MODIFIED, order: DESC } }) {
           edges {
             node {
@@ -173,8 +173,8 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
           }
         }
         `
-            : ''
-        }
+      : ''
+    }
       }
       posts(first: 3, where: { orderby: { field: DATE, order: DESC } }) {
         edges {
@@ -209,4 +209,32 @@ export async function getPostAndMorePosts(slug, preview, previewData) {
   if (data.posts.edges.length > 2) data.posts.edges.pop()
 
   return data
+}
+
+export async function getMenuItems() {
+  const data = await fetchAPI(`
+  {
+    menus(where: {location: PRIMARY}) {
+      nodes {
+        menuItems {
+          edges {
+            node {
+              path
+              label
+              connectedNode {
+                node {
+                  ... on Page {
+                    isPostsPage
+                    slug
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`)
+  return data?.menus?.nodes[0];
 }
